@@ -1,0 +1,37 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+const userSchema = new mongoose.Schema({
+  username: String,
+  avatar: Array,
+});
+
+const User = mongoose.model('User', userSchema);
+
+app.post('/save', async (req, res) => {
+  const { username, avatar } = req.body;
+  const user = new User({ username, avatar });
+  await user.save();
+  res.send('User saved!');
+});
+
+app.get('/load/:username', async (req, res) => {
+  const { username } = req.params;
+  const user = await User.findOne({ username });
+  res.send(user);
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

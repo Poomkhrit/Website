@@ -1,0 +1,46 @@
+import React, { useState } from 'react';
+import './App.css';
+import axios from 'axios';
+
+function App() {
+  const [layers, setLayers] = useState([]);
+  const [username, setUsername] = useState('');
+
+  const addLayer = (layer) => {
+    setLayers([...layers, layer]);
+  };
+
+  const saveAvatar = async () => {
+    await axios.post('https://avatarsmaker-backend.herokuapp.com/save', { username, avatar: layers });
+    alert('Avatar saved!');
+  };
+
+  const loadAvatar = async () => {
+    const response = await axios.get(`https://avatarsmaker-backend.herokuapp.com/load/${username}`);
+    setLayers(response.data.avatar);
+  };
+
+  return (
+    <div className="App">
+      <input 
+        type="text" 
+        placeholder="Username" 
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <button onClick={saveAvatar}>Save Avatar</button>
+      <button onClick={loadAvatar}>Load Avatar</button>
+      <div className="toolbar">
+        <button onClick={() => addLayer('hair1.png')}>Hair 1</button>
+        <button onClick={() => addLayer('eyes1.png')}>Eyes 1</button>
+      </div>
+      <div className="canvas">
+        {layers.map((layer, index) => (
+          <img key={index} src={`/assets/${layer}`} alt="Layer" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default App;
